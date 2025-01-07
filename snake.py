@@ -55,14 +55,7 @@ def save_high_score(player_name, score):
 def show_high_scores():
     high_scores = load_high_scores()
     high_scores.sort(key=lambda x: int(x[1]), reverse=True)  # Sort by score (high to low)
-    
-    y_offset = 150
-    for name, score in high_scores[:5]:  # Display top 5 high scores
-        score_text = font.render(f'{name}: {score}', True, TEXT_COLOR)
-        screen.blit(score_text, (150, y_offset))
-        y_offset += 50
-    
-    pygame.display.flip()
+    return high_scores[:5]  # Return the top 5 high scores
 
 # Game Over function with player name input
 def game_over():
@@ -94,16 +87,11 @@ def game_over():
                 if event.key == pygame.K_RETURN:  # Save and exit after entering name
                     if player_name:
                         save_high_score(player_name, score)
-                        show_high_scores()
-                        time.sleep(3)
                         input_active = False
                         main_menu()  # Go back to the home screen after saving
-
                     else:
                         player_name = "Anonymous"  # Default name if empty
                         save_high_score(player_name, score)
-                        show_high_scores()
-                        time.sleep(3)
                         input_active = False
                         main_menu()  # Go back to the home screen after saving
 
@@ -140,17 +128,29 @@ def pause_game():
                 elif event.key == pygame.K_q:  # If Q is pressed, quit to menu
                     main_menu()
 
-# Main menu with options
+# Main menu with options and high scores
 def main_menu():
     title_text = game_over_font.render("Welcome to Snake Game!", True, TEXT_COLOR)
     new_game_text = font.render("Press 'N' for New Game", True, TEXT_COLOR)
     quit_text = font.render("Press 'Q' to Quit", True, TEXT_COLOR)
+
+    # Show the high scores
+    high_scores = show_high_scores()
+    high_score_text = font.render("High Scores:", True, TEXT_COLOR)
     
     # Display the menu options
     screen.blit(background_image, (0, 0))  # Display the background image
     screen.blit(title_text, (150, 100))
     screen.blit(new_game_text, (250, 250))
     screen.blit(quit_text, (250, 300))
+    screen.blit(high_score_text, (150, 350))
+
+    # Display the top 5 high scores
+    y_offset = 400
+    for name, score in high_scores:
+        score_text = font.render(f'{name}: {score}', True, TEXT_COLOR)
+        screen.blit(score_text, (150, y_offset))
+        y_offset += 50
     
     pygame.display.flip()
 
@@ -242,7 +242,7 @@ def game_loop():
 
 # Main entry point
 def main():
-    main_menu()  # Show the main menu before the game starts
+    main_menu()  # Show the main menu
 
 # Start the game
 if __name__ == "__main__":
