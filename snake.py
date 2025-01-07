@@ -40,53 +40,84 @@ change_to = direction
 score = 0
 
 # Load and save high score function
-def load_high_score():
+def load_high_scores():
     try:
-        with open("highscore.txt", "r") as f:
-            return int(f.read())
+        with open("high_scores.txt", "r") as f:
+            high_scores = [line.strip().split(",") for line in f.readlines()]
+            return high_scores
     except:
-        return 0
+        return []
 
-def save_high_score(score):
-    with open("highscore.txt", "w") as f:
-        f.write(str(score))
+def save_high_score(player_name, score):
+    with open("high_scores.txt", "a") as f:
+        f.write(f"{player_name},{score}\n")
 
-# Game Over function
+def show_high_scores():
+    high_scores = load_high_scores()
+    high_scores.sort(key=lambda x: int(x[1]), reverse=True)  # Sort by score (high to low)
+    
+    y_offset = 150
+    for name, score in high_scores[:5]:  # Display top 5 high scores
+        score_text = font.render(f'{name}: {score}', True, TEXT_COLOR)
+        screen.blit(score_text, (150, y_offset))
+        y_offset += 50
+    
+    pygame.display.flip()
+
+# Game Over function with player name input
 def game_over():
     global score
-    high_score = load_high_score()
-    
-    # Save the high score if necessary
-    if score > high_score:
-        save_high_score(score)
-        high_score = score
-    
+    screen.fill(BLACK)
+
+    # Show Game Over message
     go_surface = game_over_font.render('GAME OVER', True, RED)
     screen.blit(go_surface, (150, 200))
     
     score_surface = font.render(f'Score: {score}', True, TEXT_COLOR)
     screen.blit(score_surface, (50, 300))
     
-    high_score_surface = font.render(f'High Score: {high_score}', True, TEXT_COLOR)
-    screen.blit(high_score_surface, (50, 350))
-    
-    restart_surface = font.render("Press 'R' to Restart or 'Q' to Quit to Menu", True, TEXT_COLOR)
-    screen.blit(restart_surface, (50, 400))
+    # Ask for player's name
+    name_prompt_surface = font.render("Enter your name (max 10 characters):", True, TEXT_COLOR)
+    screen.blit(name_prompt_surface, (150, 350))
     
     pygame.display.flip()
-    time.sleep(1)
 
-    waiting_for_input = True
-    while waiting_for_input:
+    player_name = ""
+    input_active = True
+    while input_active:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 exit()
+
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_r:  # Restart game
-                    game_loop()
-                elif event.key == pygame.K_q:  # Quit to home screen
-                    main_menu()
+                if event.key == pygame.K_RETURN:  # Save and exit after entering name
+                    if player_name:
+                        save_high_score(player_name, score)
+                        show_high_scores()
+                        time.sleep(3)
+                        input_active = False
+                    else:
+                        player_name = "Anonymous"  # Default name if empty
+                        save_high_score(player_name, score)
+                        show_high_scores()
+                        time.sleep(3)
+                        input_active = False
+
+                elif event.key == pygame.K_BACKSPACE:  # Remove character on backspace
+                    player_name = player_name[:-1]
+                else:
+                    if len(player_name) < 10:  # Max 10 characters
+                        player_name += event.unicode
+
+                # Display the name being typed
+                screen.fill(BLACK)
+                screen.blit(go_surface, (150, 200))
+                screen.blit(score_surface, (50, 300))
+                screen.blit(name_prompt_surface, (150, 350))
+                name_surface = font.render(player_name, True, TEXT_COLOR)
+                screen.blit(name_surface, (150, 400))
+                pygame.display.flip()
 
 # Pause function
 def pause_game():
