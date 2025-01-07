@@ -97,12 +97,15 @@ def game_over():
                         show_high_scores()
                         time.sleep(3)
                         input_active = False
+                        main_menu()  # Go back to the home screen after saving
+
                     else:
                         player_name = "Anonymous"  # Default name if empty
                         save_high_score(player_name, score)
                         show_high_scores()
                         time.sleep(3)
                         input_active = False
+                        main_menu()  # Go back to the home screen after saving
 
                 elif event.key == pygame.K_BACKSPACE:  # Remove character on backspace
                     player_name = player_name[:-1]
