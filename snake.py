@@ -22,9 +22,11 @@ BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
-BUTTON_COLOR = (50, 150, 255)  # Button color
-BUTTON_HOVER_COLOR = (100, 200, 255)  # Button hover color
+BUTTON_COLOR = (66, 133, 244)  # Soft blue color for buttons
+BUTTON_HOVER_COLOR = (33, 150, 243)  # Lighter blue for hover effect
 TEXT_COLOR = (255, 255, 255)
+DARK_GRAY = (50, 50, 50)  # For background or subtle elements
+LIGHT_GRAY = (220, 220, 220)  # For softer contrast on text and elements
 
 # Fonts
 font = pygame.font.SysFont('Arial', 30)
@@ -93,10 +95,82 @@ def display_text(text, font, color, x, y):
     screen.blit(surface, (x, y))
 
 
+def draw_button(text, font, color, x, y, width, height):
+    """Draw a rounded button with a text on it"""
+    mouse_x, mouse_y = pygame.mouse.get_pos()
+    button_rect = pygame.Rect(x, y, width, height)
+    radius = 15  # Rounded corner radius
+
+    # Draw button with rounded corners
+    if button_rect.collidepoint(mouse_x, mouse_y):
+        pygame.draw.rect(screen, BUTTON_HOVER_COLOR, button_rect, border_radius=radius)
+    else:
+        pygame.draw.rect(screen, color, button_rect, border_radius=radius)
+
+    # Render the text and place it on the button
+    text_surface = font.render(text, True, TEXT_COLOR)
+    text_rect = text_surface.get_rect(center=button_rect.center)
+    screen.blit(text_surface, text_rect)
+
+
+def draw_rounded_button(text, font, color, x, y, width, height):
+    mouse_x, mouse_y = pygame.mouse.get_pos()
+    button_rect = pygame.Rect(x, y, width, height)
+    radius = 20  # rounded corners
+
+    # Change color on hover
+    if button_rect.collidepoint(mouse_x, mouse_y):
+        pygame.draw.rect(screen, BUTTON_HOVER_COLOR, button_rect, border_radius=radius)
+    else:
+        pygame.draw.rect(screen, color, button_rect, border_radius=radius)
+
+    # Center the text in the button
+    text_surface = font.render(text, True, TEXT_COLOR)
+    text_rect = text_surface.get_rect(center=button_rect.center)
+    screen.blit(text_surface, text_rect)
+
+
+def hover_effect_button(button_text, font, color, x, y, width, height):
+    mouse_x, mouse_y = pygame.mouse.get_pos()
+    button_rect = pygame.Rect(x, y, width, height)
+
+    # Change color or size on hover
+    if button_rect.collidepoint(mouse_x, mouse_y):
+        pygame.draw.rect(screen, BUTTON_HOVER_COLOR, button_rect)
+    else:
+        pygame.draw.rect(screen, color, button_rect)
+
+    # Add text with hover effect (increased size when hovered)
+    text_surface = font.render(button_text, True, TEXT_COLOR)
+    text_rect = text_surface.get_rect(center=button_rect.center)
+    if button_rect.collidepoint(mouse_x, mouse_y):
+        text_rect.center = (text_rect.centerx, text_rect.centery - 2)
+    screen.blit(text_surface, text_rect)
+
+
+
+
+def fade_out():
+    """Fades out the screen to black."""
+    surface = pygame.Surface((screen_width, screen_height))
+    surface.fill(BLACK)
+    screen.blit(surface, (0, 0))
+    pygame.display.update()
+    pygame.time.delay(500)
+
+def fade_in():
+    """Fades in the screen from black."""
+    surface = pygame.Surface((screen_width, screen_height))
+    surface.fill(BLACK)
+    screen.blit(surface, (0, 0))
+    pygame.display.update()
+    pygame.time.delay(500)
+
+
 def game_over():
     """Handle game over logic"""
     global score
-    screen.fill(BLACK)
+    screen.fill(DARK_GRAY)
     display_text('GAME OVER', game_over_font, RED, 150, 200)
     display_text(f'Score: {score}', font, TEXT_COLOR, 50, 300)
 
@@ -122,6 +196,7 @@ def game_over():
                         high_scores = update_high_scores("Anonymous", score)
                     save_high_scores(high_scores)
                     input_active = False
+                    fade_out()
                     main_menu()  # Return to main menu
 
                 elif event.key == pygame.K_BACKSPACE:
@@ -130,7 +205,7 @@ def game_over():
                     if len(player_name) < 10:
                         player_name += event.unicode
 
-                screen.fill(BLACK)
+                screen.fill(DARK_GRAY)
                 display_text('GAME OVER', game_over_font, RED, 150, 200)
                 display_text(f'Score: {score}', font, TEXT_COLOR, 50, 300)
                 display_text("Enter your name (max 10 characters):", font, TEXT_COLOR, 150, 350)
@@ -141,8 +216,8 @@ def game_over():
 def pause_game():
     """Handle pause logic"""
     paused = True
-    screen.fill(BLACK)
-    display_text("PAUSED - Press P to Resume or Q to Quit", paused_font, RED, 150, 250)
+    screen.fill(DARK_GRAY)
+    display_text("PAUSED - Press P to Resume or Q to Quit", paused_font, BUTTON_COLOR, 150, 250)
     pygame.display.flip()
 
     while paused:
@@ -154,18 +229,28 @@ def pause_game():
                 if event.key == pygame.K_p:
                     paused = False
                 elif event.key == pygame.K_q:
+                    fade_out()
                     main_menu()
 
 
 def main_menu():
     """Main menu of the game"""
-    screen.fill(BLACK)
+    fade_in()
+    screen.fill(DARK_GRAY)
     display_text("Welcome to Snake Game!", game_over_font, TEXT_COLOR, 150, 100)
-    display_text("Press 'N' for New Game", font, TEXT_COLOR, 250, 250)
-    display_text("Press 'H' for High Scores", font, TEXT_COLOR, 250, 300)
-    display_text("Press 'S' for Settings", font, TEXT_COLOR, 250, 350)
-    display_text("Press 'I' for Instructions", font, TEXT_COLOR, 250, 400)
-    display_text("Press 'Q' to Quit", font, TEXT_COLOR, 250, 450)
+
+    # Define button positions and sizes
+    button_width = 300
+    button_height = 60
+    button_x = (screen_width - button_width) // 2
+
+    # Draw buttons
+    draw_button("New Game", font, BUTTON_COLOR, button_x, 250, button_width, button_height)
+    draw_button("High Scores", font, BUTTON_COLOR, button_x, 320, button_width, button_height)
+    draw_button("Settings", font, BUTTON_COLOR, button_x, 390, button_width, button_height)
+    draw_button("Instructions", font, BUTTON_COLOR, button_x, 460, button_width, button_height)
+    draw_button("Quit", font, BUTTON_COLOR, button_x, 530, button_width, button_height)
+
     pygame.display.flip()
 
     waiting_for_input = True
@@ -175,28 +260,37 @@ def main_menu():
                 pygame.quit()
                 exit()
 
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_n:
-                    game_loop()
-                elif event.key == pygame.K_h:
-                    high_scores_page()
-                elif event.key == pygame.K_s:
-                    settings_menu()
-                elif event.key == pygame.K_i:
-                    instructions_page()
-                elif event.key == pygame.K_q:
-                    pygame.quit()
-                    exit()
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                mouse_x, mouse_y = pygame.mouse.get_pos()
+
+                # Check if any button was clicked
+                if button_x <= mouse_x <= button_x + button_width:
+                    if 250 <= mouse_y <= 250 + button_height:
+                        fade_out()
+                        game_loop()
+                    elif 320 <= mouse_y <= 320 + button_height:
+                        fade_out()
+                        high_scores_page()
+                    elif 390 <= mouse_y <= 390 + button_height:
+                        fade_out()
+                        settings_menu()  # Go to the settings menu
+                    elif 460 <= mouse_y <= 460 + button_height:
+                        fade_out()
+                        instructions_page()
+                    elif 530 <= mouse_y <= 530 + button_height:
+                        pygame.quit()
+                        exit()
+
 
 
 def high_scores_page():
     """Display high scores"""
-    screen.fill(BLACK)
+    screen.fill(DARK_GRAY)
 
     high_scores = show_high_scores()
-    
+
     display_text("High Scores", game_over_font, TEXT_COLOR, 300, 50)
-    
+
     y_offset = 150
     for name, score in high_scores:
         display_text(f'{name}: {score}', font, TEXT_COLOR, 300, y_offset)
@@ -213,12 +307,13 @@ def high_scores_page():
                 exit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_b:
+                    fade_out()
                     main_menu()
 
 
 def instructions_page():
     """Display the game instructions"""
-    screen.fill(BLACK)
+    screen.fill(DARK_GRAY)
     display_text("Snake Game Instructions", game_over_font, TEXT_COLOR, 200, 50)
 
     instructions = [
@@ -244,6 +339,7 @@ def instructions_page():
                 exit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_b:
+                    fade_out()
                     main_menu()
 
 
@@ -309,28 +405,20 @@ def game_loop():
 
 
 def settings_menu():
-    """Settings menu for toggling fullscreen and difficulty"""
-    global screen, fullscreen, fps, screen_width, screen_height
+    """Settings menu where players can adjust the game settings."""
+    global fps, fullscreen, screen
 
-    settings_font = get_font(40)
-    settings_text = settings_font.render("Settings", True, TEXT_COLOR)
-    settings_rect = settings_text.get_rect(center=(screen_width // 2, screen_height // 5))
+    screen.fill(DARK_GRAY)
+    display_text("Settings", game_over_font, TEXT_COLOR, screen_width // 2 - 100, 50)
 
-    fullscreen_text = get_font(30).render(f"Fullscreen: {'ON' if fullscreen else 'OFF'}", True, TEXT_COLOR)
-    fullscreen_rect = fullscreen_text.get_rect(center=(screen_width // 2, screen_height // 2.5))
+    # Example settings options
+    difficulty_text = f"Difficulty: {'Easy' if fps == 15 else 'Hard'}"
+    display_text(difficulty_text, font, TEXT_COLOR, screen_width // 2 - 100, 150)
+    
+    fullscreen_text = f"Fullscreen: {'ON' if fullscreen else 'OFF'}"
+    display_text(fullscreen_text, font, TEXT_COLOR, screen_width // 2 - 100, 200)
 
-    difficulty_text = get_font(30).render(f"Difficulty: {'Easy' if fps == 15 else 'Hard'}", True, TEXT_COLOR)
-    difficulty_rect = difficulty_text.get_rect(center=(screen_width // 2, screen_height // 2))
-
-    back_text = get_font(30).render("Press 'B' to Back to Menu", True, TEXT_COLOR)
-    back_rect = back_text.get_rect(center=(screen_width // 2, screen_height // 1.5))
-
-    # Draw settings screen
-    screen.fill(BLACK)
-    screen.blit(settings_text, settings_rect)
-    screen.blit(fullscreen_text, fullscreen_rect)
-    screen.blit(difficulty_text, difficulty_rect)
-    screen.blit(back_text, back_rect)
+    display_text("Press 'B' to go Back", font, TEXT_COLOR, screen_width // 2 - 100, 300)
 
     pygame.display.flip()
 
@@ -340,22 +428,28 @@ def settings_menu():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 exit()
+
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_f:
+                if event.key == pygame.K_b:
+                    waiting_for_input = False
+                    fade_out()
+                    main_menu()
+
+                elif event.key == pygame.K_d:
+                    # Toggle difficulty between Easy and Hard
+                    fps = 25 if fps == 15 else 15
+                    settings_menu()
+
+                elif event.key == pygame.K_f:
+                    # Toggle fullscreen mode
                     fullscreen = not fullscreen
                     if fullscreen:
                         screen = pygame.display.set_mode((screen_width, screen_height), pygame.FULLSCREEN)
                     else:
-                        screen = pygame.display.set_mode((800, 600), pygame.RESIZABLE)
+                        screen = pygame.display.set_mode((screen_width, screen_height), pygame.RESIZABLE)
                     settings_menu()
 
-                elif event.key == pygame.K_d:
-                    fps = 25 if fps == 15 else 15
-                    settings_menu()
-
-                elif event.key == pygame.K_b:
-                    main_menu()
 
 
-# Start the game with the main menu
+# Main program starts here
 main_menu()

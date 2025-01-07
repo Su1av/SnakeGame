@@ -1,4 +1,4 @@
 hades,50
-Anonymous,3
+Anonymous,10
 ,0
 q,0
