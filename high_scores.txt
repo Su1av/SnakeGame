@@ -1,4 +1,2 @@
-hades,2
-Anonymous,2
 hades,1
 Anonymous,0

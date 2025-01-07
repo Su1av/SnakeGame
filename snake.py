@@ -39,22 +39,39 @@ direction = 'RIGHT'
 change_to = direction
 score = 0
 
-# Load and save high score function
+# Load and save high scores
 def load_high_scores():
     try:
         with open("high_scores.txt", "r") as f:
             high_scores = [line.strip().split(",") for line in f.readlines()]
+            high_scores = [(name, int(score)) for name, score in high_scores]  # Convert score to integer
             return high_scores
     except:
         return []
 
-def save_high_score(player_name, score):
-    with open("high_scores.txt", "a") as f:
-        f.write(f"{player_name},{score}\n")
+def save_high_scores(high_scores):
+    with open("high_scores.txt", "w") as f:
+        for name, score in high_scores:
+            f.write(f"{name},{score}\n")
+
+# Update high score (overwrite if score is higher)
+def update_high_scores(player_name, score):
+    high_scores = load_high_scores()
+
+    # Check if the player's name already exists in the high scores
+    for i, (name, old_score) in enumerate(high_scores):
+        if name == player_name:
+            if score > old_score:  # If the new score is higher, update it
+                high_scores[i] = (name, score)
+            return high_scores
+
+    # If the player doesn't exist, add a new entry
+    high_scores.append((player_name, score))
+    return high_scores
 
 def show_high_scores():
     high_scores = load_high_scores()
-    high_scores.sort(key=lambda x: int(x[1]), reverse=True)  # Sort by score (high to low)
+    high_scores.sort(key=lambda x: x[1], reverse=True)  # Sort by score (high to low)
     return high_scores[:5]  # Return the top 5 high scores
 
 # Game Over function with player name input
@@ -86,12 +103,15 @@ def game_over():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:  # Save and exit after entering name
                     if player_name:
-                        save_high_score(player_name, score)
+                        # Update high scores and save
+                        high_scores = update_high_scores(player_name, score)
+                        save_high_scores(high_scores)
                         input_active = False
                         main_menu()  # Go back to the home screen after saving
                     else:
                         player_name = "Anonymous"  # Default name if empty
-                        save_high_score(player_name, score)
+                        high_scores = update_high_scores(player_name, score)
+                        save_high_scores(high_scores)
                         input_active = False
                         main_menu()  # Go back to the home screen after saving
 
