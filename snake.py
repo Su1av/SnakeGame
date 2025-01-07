@@ -6,8 +6,10 @@ import time
 # Initialize Pygame
 pygame.init()
 
-# Set up the display
-screen = pygame.display.set_mode((800, 600))
+# Set up the display (resizable window)
+screen_width = 800
+screen_height = 600
+screen = pygame.display.set_mode((screen_width, screen_height), pygame.RESIZABLE)
 clock = pygame.time.Clock()
 
 # Colors
@@ -27,11 +29,11 @@ home_font = pygame.font.SysFont('Arial', 40)
 
 # Load background image
 background_image = pygame.image.load(r'C:\Coding\GitHub\SnakeGame\background.png')
-background_image = pygame.transform.scale(background_image, (800, 600))  # Scale it to fit the screen
+background_image = pygame.transform.scale(background_image, (screen_width, screen_height))  # Scale it to fit the screen
 
 # Snake body and food positioning
 snake_pos = [100, 50]
-food_pos = [random.randrange(1, (800//10)) * 10, random.randrange(1, (600//10)) * 10]
+food_pos = [random.randrange(1, (screen_width//10)) * 10, random.randrange(1, (screen_height//10)) * 10]
 body = [[100, 50], [90, 50], [80, 50]]
 direction = 'RIGHT'
 change_to = direction
@@ -134,11 +136,11 @@ def main_menu():
 
 # Main game loop
 def game_loop():
-    global snake_pos, body, direction, change_to, food_pos, score
+    global snake_pos, body, direction, change_to, food_pos, score, screen_width, screen_height
     
     # Reset the game state
     snake_pos = [100, 50]
-    food_pos = [random.randrange(1, (800//10)) * 10, random.randrange(1, (600//10)) * 10]
+    food_pos = [random.randrange(1, (screen_width//10)) * 10, random.randrange(1, (screen_height//10)) * 10]
     body = [[100, 50], [90, 50], [80, 50]]
     direction = 'RIGHT'
     change_to = direction
@@ -177,12 +179,12 @@ def game_loop():
         body.insert(0, list(snake_pos))
         if snake_pos[0] == food_pos[0] and snake_pos[1] == food_pos[1]:
             score += 1
-            food_pos = [random.randrange(1, (800//10)) * 10, random.randrange(1, (600//10)) * 10]
+            food_pos = [random.randrange(1, (screen_width//10)) * 10, random.randrange(1, (screen_height//10)) * 10]
         else:
             body.pop()
 
         # Game Over conditions
-        if body[0][0] < 0 or body[0][0] >= 800 or body[0][1] < 0 or body[0][1] >= 600:
+        if body[0][0] < 0 or body[0][0] >= screen_width or body[0][1] < 0 or body[0][1] >= screen_height:
             game_over()
 
         # Check if the snake collides with itself
