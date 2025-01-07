@@ -6,6 +6,14 @@ import time
 # Initialize Pygame
 pygame.init()
 
+# Load sound effects and music
+pygame.mixer.music.load("background_music.mp3")  # Background music file
+pygame.mixer.music.play(-1, 0.0)  # Loop forever
+
+eat_sound = pygame.mixer.Sound("eat_sound.wav")  # Sound when food is eaten
+death_sound = pygame.mixer.Sound("death_sound.wav")  # Sound when the snake dies
+
+
 # Set up the display (resizable window)
 screen_width = 800
 screen_height = 600
@@ -31,14 +39,12 @@ home_font = pygame.font.SysFont('Arial', 40)
 background_image = pygame.image.load(r'C:\Coding\GitHub\SnakeGame\background.png')
 
 # Inside the game loop, or before drawing each frame, resize the background:
-screen_width, screen_height = pygame.display.get_window_size()  # Get current window size
 background_image_resized = pygame.transform.scale(background_image, (screen_width, screen_height))
-
 
 
 # Snake body and food positioning
 snake_pos = [100, 50]
-food_pos = [random.randrange(1, (screen_width//10)) * 10, random.randrange(1, (screen_height//10)) * 10]
+food_pos = [random.randrange(1, (screen_width // 10)) * 10, random.randrange(1, (screen_height // 10)) * 10]
 body = [[100, 50], [90, 50], [80, 50]]
 direction = 'RIGHT'
 change_to = direction
@@ -153,6 +159,18 @@ def pause_game():
                 elif event.key == pygame.K_q:  # If Q is pressed, quit to menu
                     main_menu()
 
+# Declare global variable to store last window size
+last_screen_width, last_screen_height = 800, 600  # Initial values for window size
+
+def resize_background():
+    global last_screen_width, last_screen_height, background_image_resized
+    screen_width, screen_height = pygame.display.get_window_size()
+
+    # Only resize if the window size has changed
+    if screen_width != last_screen_width or screen_height != last_screen_height:
+        last_screen_width, last_screen_height = screen_width, screen_height
+        background_image_resized = pygame.transform.scale(background_image, (screen_width, screen_height))
+
 # Main menu with options and high scores
 def main_menu():
     title_text = game_over_font.render("Welcome to Snake Game!", True, TEXT_COLOR)
@@ -160,9 +178,8 @@ def main_menu():
     high_scores_text = font.render("Press 'H' for High Scores", True, TEXT_COLOR)
     quit_text = font.render("Press 'Q' to Quit", True, TEXT_COLOR)
 
-    # Get current window size and resize background
-    screen_width, screen_height = pygame.display.get_window_size()
-    background_image_resized = pygame.transform.scale(background_image, (screen_width, screen_height))
+    # Check and resize background if necessary
+    resize_background()
 
     # Show the menu options
     screen.blit(background_image_resized, (0, 0))  # Display the resized background
@@ -231,9 +248,8 @@ def game_loop():
     score = 0
 
     while True:
-        # Get current window size (resize background)
-        screen_width, screen_height = pygame.display.get_window_size()  
-        background_image_resized = pygame.transform.scale(background_image, (screen_width, screen_height))
+        # Check and resize background if necessary
+        resize_background()
 
         # Handle events
         for event in pygame.event.get():
@@ -255,56 +271,43 @@ def game_loop():
                     pause_game()
 
         # Update the snake direction according to `change_to`
-        if change_to == 'UP':
-            snake_pos[1] -= 10
-        if change_to == 'DOWN':
-            snake_pos[1] += 10
-        if change_to == 'LEFT':
-            snake_pos[0] -= 10
-        if change_to == 'RIGHT':
-            snake_pos[0] += 10
-
-        # Update the direction after movement
         direction = change_to
 
-        # Snake body growing mechanism
+        # Move the snake body
+        if direction == 'UP':
+            snake_pos[1] -= 10
+        if direction == 'DOWN':
+            snake_pos[1] += 10
+        if direction == 'LEFT':
+            snake_pos[0] -= 10
+        if direction == 'RIGHT':
+            snake_pos[0] += 10
+
         body.insert(0, list(snake_pos))
-        if snake_pos[0] == food_pos[0] and snake_pos[1] == food_pos[1]:
-            score += 1
+        if snake_pos == food_pos:
+            score += 10
             food_pos = [random.randrange(1, (screen_width // 10)) * 10, random.randrange(1, (screen_height // 10)) * 10]
         else:
             body.pop()
 
-        # Game Over conditions
-        if body[0][0] < 0 or body[0][0] >= screen_width or body[0][1] < 0 or body[0][1] >= screen_height:
+        if snake_pos[0] < 0 or snake_pos[0] >= screen_width or snake_pos[1] < 0 or snake_pos[1] >= screen_height:
             game_over()
 
-        # Check if the snake collides with itself
-        for block in body[1:]:
-            if body[0] == block:
-                game_over()
-
-        # Drawing the elements on screen
+        # Draw everything
         screen.fill(BLACK)
-        for pos in body:
-            pygame.draw.rect(screen, GREEN, pygame.Rect(pos[0], pos[1], 10, 10))
-        pygame.draw.rect(screen, WHITE, pygame.Rect(food_pos[0], food_pos[1], 10, 10))
+        screen.blit(background_image_resized, (0, 0))  # Draw resized background
+        for block in body:
+            pygame.draw.rect(screen, GREEN, pygame.Rect(block[0], block[1], 10, 10))
+        pygame.draw.rect(screen, RED, pygame.Rect(food_pos[0], food_pos[1], 10, 10))
 
         # Display score
-        score_surface = font.render(f'Score: {score}', True, TEXT_COLOR)
+        score_surface = font.render(f"Score: {score}", True, WHITE)
         screen.blit(score_surface, (10, 10))
 
-        # Update the display
         pygame.display.update()
+
+        # Frame Per Second /Refresh Rate
         clock.tick(20)
 
-
-
-
-# Main entry point
-def main():
-    main_menu()  # Show the main menu before the game starts
-
-# Start the game
-if __name__ == "__main__":
-    main()
+# Start the game with the main menu
+main_menu()
