@@ -132,25 +132,15 @@ def pause_game():
 def main_menu():
     title_text = game_over_font.render("Welcome to Snake Game!", True, TEXT_COLOR)
     new_game_text = font.render("Press 'N' for New Game", True, TEXT_COLOR)
+    high_scores_text = font.render("Press 'H' for High Scores", True, TEXT_COLOR)
     quit_text = font.render("Press 'Q' to Quit", True, TEXT_COLOR)
 
-    # Show the high scores
-    high_scores = show_high_scores()
-    high_score_text = font.render("High Scores:", True, TEXT_COLOR)
-    
-    # Display the menu options
+    # Show the menu options
     screen.blit(background_image, (0, 0))  # Display the background image
     screen.blit(title_text, (150, 100))
     screen.blit(new_game_text, (250, 250))
-    screen.blit(quit_text, (250, 300))
-    screen.blit(high_score_text, (150, 350))
-
-    # Display the top 5 high scores
-    y_offset = 400
-    for name, score in high_scores:
-        score_text = font.render(f'{name}: {score}', True, TEXT_COLOR)
-        screen.blit(score_text, (150, y_offset))
-        y_offset += 50
+    screen.blit(high_scores_text, (250, 300))
+    screen.blit(quit_text, (250, 350))
     
     pygame.display.flip()
 
@@ -164,9 +154,41 @@ def main_menu():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_n:  # Start new game
                     game_loop()
+                elif event.key == pygame.K_h:  # View high scores
+                    high_scores_page()
                 elif event.key == pygame.K_q:  # Quit the game
                     pygame.quit()
                     exit()
+
+# High Scores page
+def high_scores_page():
+    screen.fill(BLACK)
+
+    high_scores = show_high_scores()
+    
+    title_text = game_over_font.render("High Scores", True, TEXT_COLOR)
+    screen.blit(title_text, (300, 50))
+    
+    y_offset = 150
+    for name, score in high_scores:
+        score_text = font.render(f'{name}: {score}', True, TEXT_COLOR)
+        screen.blit(score_text, (300, y_offset))
+        y_offset += 50
+
+    back_text = font.render("Press 'B' to Back to Menu", True, TEXT_COLOR)
+    screen.blit(back_text, (250, y_offset + 50))
+
+    pygame.display.flip()
+
+    waiting_for_input = True
+    while waiting_for_input:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_b:  # Return to the main menu
+                    main_menu()
 
 # Main game loop
 def game_loop():
@@ -242,7 +264,7 @@ def game_loop():
 
 # Main entry point
 def main():
-    main_menu()  # Show the main menu
+    main_menu()  # Show the main menu before the game starts
 
 # Start the game
 if __name__ == "__main__":
