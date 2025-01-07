@@ -68,7 +68,7 @@ def game_over():
     high_score_surface = font.render(f'High Score: {high_score}', True, TEXT_COLOR)
     screen.blit(high_score_surface, (50, 350))
     
-    restart_surface = font.render("Press 'R' to Restart or 'Q' to Quit", True, TEXT_COLOR)
+    restart_surface = font.render("Press 'R' to Restart or 'Q' to Quit to Menu", True, TEXT_COLOR)
     screen.blit(restart_surface, (50, 400))
     
     pygame.display.flip()
@@ -84,7 +84,7 @@ def game_over():
                 if event.key == pygame.K_r:  # Restart game
                     game_loop()
                 elif event.key == pygame.K_q:  # Quit to home screen
-                    home_screen()
+                    main_menu()
 
 # Pause function
 def pause_game():
@@ -101,32 +101,23 @@ def pause_game():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_p:  # If P is pressed, resume
                     paused = False
-                elif event.key == pygame.K_q:  # If Q is pressed, quit
-                    home_screen()
+                elif event.key == pygame.K_q:  # If Q is pressed, quit to menu
+                    main_menu()
 
-# Home screen with a Start Game button
-def home_screen():
+# Main menu with options
+def main_menu():
     title_text = game_over_font.render("Welcome to Snake Game!", True, TEXT_COLOR)
-    instructions_text = font.render("Press any key or click 'Start Game' to begin", True, TEXT_COLOR)
+    new_game_text = font.render("Press 'N' for New Game", True, TEXT_COLOR)
+    quit_text = font.render("Press 'Q' to Quit", True, TEXT_COLOR)
     
-    # Create Start Game button
-    button_rect = pygame.Rect(300, 350, 200, 50)
-    mouse_pos = pygame.mouse.get_pos()
-
-    # Change button color on hover
-    if button_rect.collidepoint(mouse_pos):
-        pygame.draw.rect(screen, BUTTON_HOVER_COLOR, button_rect)
-    else:
-        pygame.draw.rect(screen, BUTTON_COLOR, button_rect)
-
-    button_text = home_font.render("Start Game", True, TEXT_COLOR)
-    screen.blit(button_text, (button_rect.x + 50, button_rect.y + 10))
-    
+    # Display the menu options
     screen.blit(background_image, (0, 0))  # Display the background image
-    screen.blit(title_text, (150, 150))
-    screen.blit(instructions_text, (150, 250))
-    pygame.display.flip()
+    screen.blit(title_text, (150, 100))
+    screen.blit(new_game_text, (250, 250))
+    screen.blit(quit_text, (250, 300))
     
+    pygame.display.flip()
+
     waiting_for_input = True
     while waiting_for_input:
         for event in pygame.event.get():
@@ -135,13 +126,11 @@ def home_screen():
                 exit()
 
             if event.type == pygame.KEYDOWN:
-                waiting_for_input = False
-                game_loop()  # Start the game after the player presses a key
-                
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if button_rect.collidepoint(event.pos):  # If the button is clicked
-                    waiting_for_input = False
-                    game_loop()  # Start the game after clicking the button
+                if event.key == pygame.K_n:  # Start new game
+                    game_loop()
+                elif event.key == pygame.K_q:  # Quit the game
+                    pygame.quit()
+                    exit()
 
 # Main game loop
 def game_loop():
@@ -217,7 +206,7 @@ def game_loop():
 
 # Main entry point
 def main():
-    home_screen()  # Show the home screen before the game starts
+    main_menu()  # Show the main menu before the game starts
 
 # Start the game
 if __name__ == "__main__":
