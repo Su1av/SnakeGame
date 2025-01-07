@@ -25,6 +25,10 @@ game_over_font = pygame.font.SysFont('Arial', 90)
 paused_font = pygame.font.SysFont('Arial', 50)
 home_font = pygame.font.SysFont('Arial', 40)
 
+# Load background image
+background_image = pygame.image.load(r'C:\Coding\GitHub\SnakeGame\background.png')
+background_image = pygame.transform.scale(background_image, (800, 600))  # Scale it to fit the screen
+
 # Snake body and food positioning
 snake_pos = [100, 50]
 food_pos = [random.randrange(1, (800//10)) * 10, random.randrange(1, (600//10)) * 10]
@@ -64,7 +68,7 @@ def game_over():
     high_score_surface = font.render(f'High Score: {high_score}', True, TEXT_COLOR)
     screen.blit(high_score_surface, (50, 350))
     
-    restart_surface = font.render("Press 'R' to Restart", True, TEXT_COLOR)
+    restart_surface = font.render("Press 'R' to Restart or 'Q' to Quit", True, TEXT_COLOR)
     screen.blit(restart_surface, (50, 400))
     
     pygame.display.flip()
@@ -79,12 +83,14 @@ def game_over():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_r:  # Restart game
                     game_loop()
+                elif event.key == pygame.K_q:  # Quit to home screen
+                    home_screen()
 
 # Pause function
 def pause_game():
     paused = True
-    pause_text = paused_font.render("PAUSED - Press P to Resume", True, RED)
-    screen.blit(pause_text, (200, 250))
+    pause_text = paused_font.render("PAUSED - Press P to Resume or Q to Quit", True, RED)
+    screen.blit(pause_text, (150, 250))
     pygame.display.flip()
     
     while paused:
@@ -95,6 +101,8 @@ def pause_game():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_p:  # If P is pressed, resume
                     paused = False
+                elif event.key == pygame.K_q:  # If Q is pressed, quit
+                    home_screen()
 
 # Home screen with a Start Game button
 def home_screen():
@@ -114,7 +122,7 @@ def home_screen():
     button_text = home_font.render("Start Game", True, TEXT_COLOR)
     screen.blit(button_text, (button_rect.x + 50, button_rect.y + 10))
     
-    screen.fill(BLACK)
+    screen.blit(background_image, (0, 0))  # Display the background image
     screen.blit(title_text, (150, 150))
     screen.blit(instructions_text, (150, 250))
     pygame.display.flip()
