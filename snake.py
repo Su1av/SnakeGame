@@ -210,13 +210,13 @@ def high_scores_page():
                 if event.key == pygame.K_b:  # Return to the main menu
                     main_menu()
 
-# Main game loop
+# Main game loop with fixed direction keys
 def game_loop():
     global snake_pos, body, direction, change_to, food_pos, score, screen_width, screen_height
-    
+
     # Reset the game state
     snake_pos = [100, 50]
-    food_pos = [random.randrange(1, (screen_width//10)) * 10, random.randrange(1, (screen_height//10)) * 10]
+    food_pos = [random.randrange(1, (screen_width // 10)) * 10, random.randrange(1, (screen_height // 10)) * 10]
     body = [[100, 50], [90, 50], [80, 50]]
     direction = 'RIGHT'
     change_to = direction
@@ -229,16 +229,17 @@ def game_loop():
                 pygame.quit()
                 exit()
 
-            elif event.type == pygame.KEYDOWN:  # Check for key presses
-                if event.key == pygame.K_UP and direction != 'DOWN':
+            # Check for key presses and prevent opposite direction movement
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP and direction != 'DOWN':  # Prevent going DOWN when going UP
                     change_to = 'UP'
-                if event.key == pygame.K_DOWN and direction != 'UP':
+                elif event.key == pygame.K_DOWN and direction != 'UP':  # Prevent going UP when going DOWN
                     change_to = 'DOWN'
-                if event.key == pygame.K_LEFT and direction != 'RIGHT':
+                elif event.key == pygame.K_LEFT and direction != 'RIGHT':  # Prevent going RIGHT when going LEFT
                     change_to = 'LEFT'
-                if event.key == pygame.K_RIGHT and direction != 'LEFT':
+                elif event.key == pygame.K_RIGHT and direction != 'LEFT':  # Prevent going LEFT when going RIGHT
                     change_to = 'RIGHT'
-                if event.key == pygame.K_p:  # Pause the game
+                elif event.key == pygame.K_p:  # Pause the game
                     pause_game()
 
         # Update the snake direction according to `change_to`
@@ -251,11 +252,14 @@ def game_loop():
         if change_to == 'RIGHT':
             snake_pos[0] += 10
 
+        # Update the direction after movement
+        direction = change_to
+
         # Snake body growing mechanism
         body.insert(0, list(snake_pos))
         if snake_pos[0] == food_pos[0] and snake_pos[1] == food_pos[1]:
             score += 1
-            food_pos = [random.randrange(1, (screen_width//10)) * 10, random.randrange(1, (screen_height//10)) * 10]
+            food_pos = [random.randrange(1, (screen_width // 10)) * 10, random.randrange(1, (screen_height // 10)) * 10]
         else:
             body.pop()
 
@@ -281,6 +285,9 @@ def game_loop():
         # Update the display
         pygame.display.update()
         clock.tick(20)
+
+
+
 
 # Main entry point
 def main():
