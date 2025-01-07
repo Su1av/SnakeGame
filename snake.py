@@ -29,7 +29,12 @@ home_font = pygame.font.SysFont('Arial', 40)
 
 # Load background image
 background_image = pygame.image.load(r'C:\Coding\GitHub\SnakeGame\background.png')
-background_image = pygame.transform.scale(background_image, (screen_width, screen_height))  # Scale it to fit the screen
+
+# Inside the game loop, or before drawing each frame, resize the background:
+screen_width, screen_height = pygame.display.get_window_size()  # Get current window size
+background_image_resized = pygame.transform.scale(background_image, (screen_width, screen_height))
+
+
 
 # Snake body and food positioning
 snake_pos = [100, 50]
@@ -155,13 +160,16 @@ def main_menu():
     high_scores_text = font.render("Press 'H' for High Scores", True, TEXT_COLOR)
     quit_text = font.render("Press 'Q' to Quit", True, TEXT_COLOR)
 
+    # Get current window size and resize background
+    screen_width, screen_height = pygame.display.get_window_size()
+    background_image_resized = pygame.transform.scale(background_image, (screen_width, screen_height))
+
     # Show the menu options
-    screen.blit(background_image, (0, 0))  # Display the background image
+    screen.blit(background_image_resized, (0, 0))  # Display the resized background
     screen.blit(title_text, (150, 100))
     screen.blit(new_game_text, (250, 250))
     screen.blit(high_scores_text, (250, 300))
     screen.blit(quit_text, (250, 350))
-    
     pygame.display.flip()
 
     waiting_for_input = True
@@ -223,6 +231,10 @@ def game_loop():
     score = 0
 
     while True:
+        # Get current window size (resize background)
+        screen_width, screen_height = pygame.display.get_window_size()  
+        background_image_resized = pygame.transform.scale(background_image, (screen_width, screen_height))
+
         # Handle events
         for event in pygame.event.get():
             if event.type == pygame.QUIT:

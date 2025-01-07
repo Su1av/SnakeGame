@@ -1,2 +1,4 @@
-hades,2
-Anonymous,1
+hades,6
+Anonymous,3
+,0
+q,0
