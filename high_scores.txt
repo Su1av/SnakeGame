@@ -1,4 +1,4 @@
-hades,6
+hades,30
 Anonymous,3
 ,0
 q,0

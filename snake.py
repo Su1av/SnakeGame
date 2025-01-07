@@ -10,9 +10,8 @@ pygame.init()
 pygame.mixer.music.load("background_music.mp3")  # Background music file
 pygame.mixer.music.play(-1, 0.0)  # Loop forever
 
-eat_sound = pygame.mixer.Sound("eat_sound.wav")  # Sound when food is eaten
-death_sound = pygame.mixer.Sound("death_sound.wav")  # Sound when the snake dies
-
+eat_sound = pygame.mixer.Sound("eat_sound.mp3")  # Sound when food is eaten
+death_sound = pygame.mixer.Sound("death_sound.mp3")  # Sound when the snake dies
 
 # Set up the display (resizable window)
 screen_width = 800
@@ -29,18 +28,9 @@ BUTTON_COLOR = (50, 150, 255)  # Button color
 BUTTON_HOVER_COLOR = (100, 200, 255)  # Button hover color
 TEXT_COLOR = (255, 255, 255)
 
-# Fonts
-font = pygame.font.SysFont('Arial', 30)
-game_over_font = pygame.font.SysFont('Arial', 90)
-paused_font = pygame.font.SysFont('Arial', 50)
-home_font = pygame.font.SysFont('Arial', 40)
-
-# Load background image
-background_image = pygame.image.load(r'C:\Coding\GitHub\SnakeGame\background.png')
-
-# Inside the game loop, or before drawing each frame, resize the background:
-background_image_resized = pygame.transform.scale(background_image, (screen_width, screen_height))
-
+# Font resizing function
+def get_font(size):
+    return pygame.font.SysFont('Arial', size)
 
 # Snake body and food positioning
 snake_pos = [100, 50]
@@ -91,15 +81,21 @@ def game_over():
     screen.fill(BLACK)
 
     # Show Game Over message
-    go_surface = game_over_font.render('GAME OVER', True, RED)
-    screen.blit(go_surface, (150, 200))
+    go_font = get_font(screen_height // 8)
+    go_surface = go_font.render('GAME OVER', True, RED)
+    go_rect = go_surface.get_rect(center=(screen_width // 2, screen_height // 3))
+    screen.blit(go_surface, go_rect)
     
-    score_surface = font.render(f'Score: {score}', True, TEXT_COLOR)
-    screen.blit(score_surface, (50, 300))
+    score_font = get_font(screen_height // 20)
+    score_surface = score_font.render(f'Score: {score}', True, TEXT_COLOR)
+    score_rect = score_surface.get_rect(center=(screen_width // 2, screen_height // 2))
+    screen.blit(score_surface, score_rect)
     
     # Ask for player's name
-    name_prompt_surface = font.render("Enter your name (max 10 characters):", True, TEXT_COLOR)
-    screen.blit(name_prompt_surface, (150, 350))
+    name_prompt_font = get_font(screen_height // 25)
+    name_prompt_surface = name_prompt_font.render("Enter your name (max 10 characters):", True, TEXT_COLOR)
+    name_prompt_rect = name_prompt_surface.get_rect(center=(screen_width // 2, screen_height // 1.5))
+    screen.blit(name_prompt_surface, name_prompt_rect)
     
     pygame.display.flip()
 
@@ -134,18 +130,21 @@ def game_over():
 
                 # Display the name being typed
                 screen.fill(BLACK)
-                screen.blit(go_surface, (150, 200))
-                screen.blit(score_surface, (50, 300))
-                screen.blit(name_prompt_surface, (150, 350))
-                name_surface = font.render(player_name, True, TEXT_COLOR)
-                screen.blit(name_surface, (150, 400))
+                screen.blit(go_surface, go_rect)
+                screen.blit(score_surface, score_rect)
+                screen.blit(name_prompt_surface, name_prompt_rect)
+                name_surface = name_prompt_font.render(player_name, True, TEXT_COLOR)
+                name_rect = name_surface.get_rect(center=(screen_width // 2, screen_height // 1.25))
+                screen.blit(name_surface, name_rect)
                 pygame.display.flip()
 
 # Pause function
 def pause_game():
     paused = True
-    pause_text = paused_font.render("PAUSED - Press P to Resume or Q to Quit", True, RED)
-    screen.blit(pause_text, (150, 250))
+    pause_font = get_font(screen_height // 20)
+    pause_text = pause_font.render("PAUSED - Press P to Resume or Q to Quit", True, RED)
+    pause_rect = pause_text.get_rect(center=(screen_width // 2, screen_height // 2))
+    screen.blit(pause_text, pause_rect)
     pygame.display.flip()
     
     while paused:
@@ -159,34 +158,30 @@ def pause_game():
                 elif event.key == pygame.K_q:  # If Q is pressed, quit to menu
                     main_menu()
 
-# Declare global variable to store last window size
-last_screen_width, last_screen_height = 800, 600  # Initial values for window size
-
-def resize_background():
-    global last_screen_width, last_screen_height, background_image_resized
-    screen_width, screen_height = pygame.display.get_window_size()
-
-    # Only resize if the window size has changed
-    if screen_width != last_screen_width or screen_height != last_screen_height:
-        last_screen_width, last_screen_height = screen_width, screen_height
-        background_image_resized = pygame.transform.scale(background_image, (screen_width, screen_height))
-
 # Main menu with options and high scores
 def main_menu():
-    title_text = game_over_font.render("Welcome to Snake Game!", True, TEXT_COLOR)
-    new_game_text = font.render("Press 'N' for New Game", True, TEXT_COLOR)
-    high_scores_text = font.render("Press 'H' for High Scores", True, TEXT_COLOR)
-    quit_text = font.render("Press 'Q' to Quit", True, TEXT_COLOR)
+    title_font = get_font(screen_height // 10)
+    title_text = title_font.render("Welcome to Snake Game!", True, TEXT_COLOR)
+    title_rect = title_text.get_rect(center=(screen_width // 2, screen_height // 5))
 
-    # Check and resize background if necessary
-    resize_background()
+    new_game_font = get_font(screen_height // 20)
+    new_game_text = new_game_font.render("Press 'N' for New Game", True, TEXT_COLOR)
+    new_game_rect = new_game_text.get_rect(center=(screen_width // 2, screen_height // 2))
+
+    high_scores_font = get_font(screen_height // 20)
+    high_scores_text = high_scores_font.render("Press 'H' for High Scores", True, TEXT_COLOR)
+    high_scores_rect = high_scores_text.get_rect(center=(screen_width // 2, screen_height // 1.5))
+
+    quit_font = get_font(screen_height // 20)
+    quit_text = quit_font.render("Press 'Q' to Quit", True, TEXT_COLOR)
+    quit_rect = quit_text.get_rect(center=(screen_width // 2, screen_height // 1.2))
 
     # Show the menu options
-    screen.blit(background_image_resized, (0, 0))  # Display the resized background
-    screen.blit(title_text, (150, 100))
-    screen.blit(new_game_text, (250, 250))
-    screen.blit(high_scores_text, (250, 300))
-    screen.blit(quit_text, (250, 350))
+    screen.fill(BLACK)  # Fill the screen with black background
+    screen.blit(title_text, title_rect)
+    screen.blit(new_game_text, new_game_rect)
+    screen.blit(high_scores_text, high_scores_rect)
+    screen.blit(quit_text, quit_rect)
     pygame.display.flip()
 
     waiting_for_input = True
@@ -207,21 +202,27 @@ def main_menu():
 
 # High Scores page
 def high_scores_page():
-    screen.fill(BLACK)
+    screen.fill(BLACK)  # Fill the screen with black background
 
     high_scores = show_high_scores()
     
-    title_text = game_over_font.render("High Scores", True, TEXT_COLOR)
-    screen.blit(title_text, (300, 50))
+    title_font = get_font(screen_height // 10)
+    title_text = title_font.render("High Scores", True, TEXT_COLOR)
+    title_rect = title_text.get_rect(center=(screen_width // 2, screen_height // 5))
+    screen.blit(title_text, title_rect)
     
-    y_offset = 150
+    y_offset = screen_height // 3
+    score_font = get_font(screen_height // 20)
     for name, score in high_scores:
-        score_text = font.render(f'{name}: {score}', True, TEXT_COLOR)
-        screen.blit(score_text, (300, y_offset))
+        score_text = score_font.render(f'{name}: {score}', True, TEXT_COLOR)
+        score_rect = score_text.get_rect(center=(screen_width // 2, y_offset))
+        screen.blit(score_text, score_rect)
         y_offset += 50
 
-    back_text = font.render("Press 'B' to Back to Menu", True, TEXT_COLOR)
-    screen.blit(back_text, (250, y_offset + 50))
+    back_font = get_font(screen_height // 20)
+    back_text = back_font.render("Press 'B' to Back to Menu", True, TEXT_COLOR)
+    back_rect = back_text.get_rect(center=(screen_width // 2, y_offset + 50))
+    screen.blit(back_text, back_rect)
 
     pygame.display.flip()
 
@@ -248,9 +249,6 @@ def game_loop():
     score = 0
 
     while True:
-        # Check and resize background if necessary
-        resize_background()
-
         # Handle events
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -287,26 +285,28 @@ def game_loop():
         if snake_pos == food_pos:
             score += 10
             food_pos = [random.randrange(1, (screen_width // 10)) * 10, random.randrange(1, (screen_height // 10)) * 10]
+            eat_sound.play()  # Play the sound when food is eaten        
         else:
             body.pop()
 
         if snake_pos[0] < 0 or snake_pos[0] >= screen_width or snake_pos[1] < 0 or snake_pos[1] >= screen_height:
+            death_sound.play()  # Play the death sound when the snake hits the wall
             game_over()
 
         # Draw everything
-        screen.fill(BLACK)
-        screen.blit(background_image_resized, (0, 0))  # Draw resized background
+        screen.fill(BLACK)  # Fill the screen with black background
         for block in body:
             pygame.draw.rect(screen, GREEN, pygame.Rect(block[0], block[1], 10, 10))
         pygame.draw.rect(screen, RED, pygame.Rect(food_pos[0], food_pos[1], 10, 10))
 
         # Display score
-        score_surface = font.render(f"Score: {score}", True, WHITE)
+        score_font = get_font(screen_height // 20)
+        score_surface = score_font.render(f"Score: {score}", True, WHITE)
         screen.blit(score_surface, (10, 10))
 
         pygame.display.update()
 
-        # Frame Per Second /Refresh Rate
+        # Frame Per Second / Refresh Rate
         clock.tick(20)
 
 # Start the game with the main menu
